@@ -1,0 +1,7 @@
+; Edu Webservice configuration file
+
+[Database]
+host = localhost
+database = u678068540_edu
+username = u678068540_web
+password = W3bUde
