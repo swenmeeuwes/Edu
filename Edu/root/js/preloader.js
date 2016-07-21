@@ -11,12 +11,21 @@ Game.Preloader.prototype = {
         this.load.setPreloadSprite(this.loadingBar);
 
         // Load Assets
+        // Menu
         this.load.image('buttonPlay', 'assets/button_play.png');
-        this.load.image('buttonMinigameBubblemath', 'assets/button_minigame_bubblemath.png');
+        this.load.image('buttonBack', 'assets/button_back.png');
 
+        //Hub
+        this.load.image('buttonMinigameBubblemath', 'assets/hub/button_minigame_bubblemath.png');
+        this.load.image('backgroundHub', 'assets/hub/background_placeholder.jpg');
+        this.load.image('pet', 'assets/hub/scyther.gif');
+
+        //Minigame bubblemath
         this.load.image('balloon', 'assets/minigame_bubblemath/balloon.png');
+        this.load.image('moon', 'assets/minigame_bubblemath/moon.png');
+        this.load.image('star', 'assets/minigame_bubblemath/star.png');
     },
     create: function () {
-        this.state.start('main_menu');
+        this.state.start('hub');
     }
 }

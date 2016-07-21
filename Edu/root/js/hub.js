@@ -1,5 +1,6 @@
 ﻿var data;
 var buttonMinigameBubblemath;
+var petNameText;
 
 Game.Hub = function (game) {
     
@@ -7,9 +8,27 @@ Game.Hub = function (game) {
 
 Game.Hub.prototype = {
     create: function (game) {
-        getRawData("Swen");
+        getRawData();
+        //insertPet("Swen", "Bob", 56, 80);
 
-        buttonMinigameBubblemath = game.add.button(game.world.centerX, game.world.centerY + 50, 'buttonMinigameBubblemath', buttonMinigameBubblemathOnClick, this, 2, 1, 0);
+        var background = game.add.image(0, 0, 'backgroundHub');
+        background.width = 800;
+        background.height = 600;
+
+        var pet = game.add.image(game.world.centerX, game.world.centerY, 'pet');
+        pet.width = 200;
+        pet.height = 200;
+        pet.anchor.setTo(0.5, 0.5);
+
+        petNameText = game.add.text(game.world.centerX, game.world.centerY - 12 - pet.height / 2, "Loading pet name ...", {
+            font: "24px Calibri",
+            fill: "#000",
+            align: "center"
+        });
+        petNameText.anchor.setTo(0.5, 0.5);
+        
+
+        buttonMinigameBubblemath = game.add.button(game.world.centerX * 1.75, game.world.centerY + 50, 'buttonMinigameBubblemath', buttonMinigameBubblemathOnClick, this, 2, 1, 0);
         buttonMinigameBubblemath.anchor.setTo(0.5, 0.5);
 
         buttonMinigameBubblemath.onInputOver.add(buttonMinigameBubblemathOnHover, this);
@@ -18,12 +37,12 @@ Game.Hub.prototype = {
     },
     update: function (game) {
         if (data != null) {
-            // Has data
+            petNameText.text = data.data.name;
         }
     }
 }
 
-function getRawData(username) {
+function getRawData() {
     var xhttp;
     xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
@@ -31,8 +50,22 @@ function getRawData(username) {
             data = JSON.parse(xhttp.responseText);
         }
     };
-    xhttp.open("GET", "../Webservice/Controllers/pet.php?username=" + username, true);
+    //xhttp.open("GET", "../Webservice/Controllers/pet.php?username=" + username, true);
+    xhttp.open("GET", "../Webservice/Controllers/pet.php", true);
     xhttp.send();
+}
+
+function insertPet(username, name, happiness, growth) {
+    var xhttp;
+    xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (xhttp.readyState == 4 && xhttp.status == 200) {
+            data = JSON.parse(xhttp.responseText);
+        }
+    };
+    xhttp.open("POST", "../Webservice/Controllers/pet.php", true);
+    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhttp.send("username=" + username + "&name=" + name + "&happiness=" + happiness + "&growth=" + growth);
 }
 
 function buttonMinigameBubblemathOnHover() {

@@ -1,4 +1,6 @@
-﻿var buttonPlay;
+﻿// Main menu OBSOLETE
+
+var buttonPlay;
 
 Game.MainMenu = function (game) { };
 

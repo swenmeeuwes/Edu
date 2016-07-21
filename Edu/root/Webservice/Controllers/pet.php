@@ -1,17 +1,25 @@
 <?php
 include '../database/database_connect.php';
 
+session_start();
+$_SESSION["username"] = "Swen";
+
 header("Content-Type:application/json");
-if(!empty($_GET['username'])) {
-	$result = select($database, $_GET['username']);
+if(!empty($_SESSION["username"])) {
+	$result = select($database, $_SESSION["username"]);
 
 	if(!empty($result)) {
 		respond(200, "Pet found", $result);
 	} else {
 		respond(200, "Pet not found", NULL);
 	}
+} else if(!empty($_SESSION["username"]) && !empty($_POST['name']) && !empty($_POST['happiness']) && !empty($_POST['growth'])) {
+	if(insert($database, $_SESSION["username"], $_POST['name'], $_POST['happiness'], $_POST['growth']))
+        respond(200, "Pet inserted", NULL);
+    else
+        respond(200, "Could not insert pet", NULL);
 } else {
-	respond(400, "Invalid request", NULL);
+    respond(400, "Invalid request", NULL);
 }
 
 function select($database, $username) {
@@ -30,6 +38,20 @@ function select($database, $username) {
 	return array("name"=>$name, "happiness"=>$happiness, "growth"=>$growth);
 }
 
+function insert($database, $username, $name, $happiness, $growth) {
+	// To-Do: Check for existence
+	$stmt = $database->prepare("INSERT INTO Pet (username, name, happiness, growth) VALUES (?,?,?,?)");
+	$stmt->bind_param("ssii", $username, $name, $happiness, $growth);
+
+	$stmt->execute();
+
+	$stmt->fetch();
+
+	$stmt->close();
+
+	return true;
+}
+
 function respond($status, $status_message, $data) {
 	header("HTTP/1.1 $status $status_message");
 
@@ -41,4 +63,5 @@ function respond($status, $status_message, $data) {
 	echo $json_response;
 }
 
+disconnect($database);
 ?>
