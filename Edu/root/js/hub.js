@@ -9,7 +9,6 @@ Game.Hub = function (game) {
 Game.Hub.prototype = {
     create: function (game) {
         getRawData();
-        //insertPet("Swen", "Bob", 56, 80);
 
         var background = game.add.image(0, 0, 'backgroundHub');
         background.width = 800;
@@ -37,7 +36,8 @@ Game.Hub.prototype = {
     },
     update: function (game) {
         if (data != null) {
-            petNameText.text = data.data.name;
+            if (data.data.name != null)
+                petNameText.text = data.data.name;
         }
     }
 }
@@ -50,12 +50,11 @@ function getRawData() {
             data = JSON.parse(xhttp.responseText);
         }
     };
-    //xhttp.open("GET", "../Webservice/Controllers/pet.php?username=" + username, true);
     xhttp.open("GET", "../Webservice/Controllers/pet.php", true);
     xhttp.send();
 }
 
-function insertPet(username, name, happiness, growth) {
+function insertPet(name, happiness, growth) {
     var xhttp;
     xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
@@ -65,7 +64,7 @@ function insertPet(username, name, happiness, growth) {
     };
     xhttp.open("POST", "../Webservice/Controllers/pet.php", true);
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhttp.send("username=" + username + "&name=" + name + "&happiness=" + happiness + "&growth=" + growth);
+    xhttp.send("name=" + name + "&happiness=" + happiness + "&growth=" + growth);
 }
 
 function buttonMinigameBubblemathOnHover() {

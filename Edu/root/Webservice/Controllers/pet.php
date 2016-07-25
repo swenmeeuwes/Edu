@@ -2,7 +2,6 @@
 include '../database/database_connect.php';
 
 session_start();
-$_SESSION["username"] = "Swen";
 
 header("Content-Type:application/json");
 if(!empty($_SESSION["username"])) {

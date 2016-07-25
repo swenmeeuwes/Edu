@@ -1,8 +1,7 @@
-﻿<?php
+<?php
 include '../database/database_connect.php';
 
 session_start();
-$_SESSION["username"] = "Swen";
 
 header("Content-Type:application/json");
 if(!empty($_SESSION["username"]) && empty($_POST['timestamp'])) {
@@ -13,8 +12,8 @@ if(!empty($_SESSION["username"]) && empty($_POST['timestamp'])) {
 	} else {
 		respond(200, "Record not found", NULL);
 	}
-} else if(!empty($_POST['timestamp']) && !empty($_SESSION["username"]) && !empty($_POST['minigameName']) && !empty($_POST['score']) && !empty($_POST['difficulty'])) {
-	if(insert($database,  $_POST['timestamp'], $_SESSION["username"], $_POST['minigameName'], $_POST['score'], $_POST['difficulty']))
+} else if(!empty($_POST['timestamp']) && !empty($_SESSION["username"]) && !empty($_POST['minigameName']) && (!empty($_POST['score']) || $_POST['score'] == 0) && !empty($_POST['difficulty']) && !empty($_POST['beginTimestamp'])) {
+	if(insert($database,  $_POST['timestamp'], $_SESSION["username"], $_POST['minigameName'], $_POST['score'], $_POST['difficulty'], $_POST['beginTimestamp']))
         respond(200, "Record inserted", NULL);
     else
         respond(200, "Could not insert record", NULL);
@@ -23,16 +22,16 @@ if(!empty($_SESSION["username"]) && empty($_POST['timestamp'])) {
 }
 
 function select($database, $username) {
-	$stmt = $database->prepare("SELECT timestamp, minigameName, score, difficulty FROM Record WHERE username=?");
+	$stmt = $database->prepare("SELECT timestamp, minigameName, score, difficulty, beginTimestamp FROM Record WHERE username=?");
 	$stmt->bind_param("s", $username);
 
 	$stmt->execute();
 
-	$stmt->bind_result($timestamp, $minigameName, $score, $difficulty);
+	$stmt->bind_result($timestamp, $minigameName, $score, $difficulty, $beginTimestamp);
 
     $records = array();
 	while($stmt->fetch()) {
-        array_push($records, array("timestamp"=>$timestamp, "minigameName"=>$minigameName, "score"=>$score, "difficulty"=>$difficulty));
+        array_push($records, array("timestamp"=>$timestamp, "minigameName"=>$minigameName, "score"=>$score, "difficulty"=>$difficulty, "beginTimestamp"=>$beginTimestamp));
     }
 
 	$stmt->close();
@@ -40,10 +39,10 @@ function select($database, $username) {
 	return $records;
 }
 
-function insert($database, $timestamp, $username, $minigameName, $score, $difficulty) {
+function insert($database, $timestamp, $username, $minigameName, $score, $difficulty, $beginTimestamp) {
 	// To-Do: Check for existence
-	$stmt = $database->prepare("INSERT INTO Record (timestamp, username, minigameName, score, difficulty) VALUES (?,?,?,?,?)");
-	$stmt->bind_param("issii", $timestamp, $username, $minigameName, $score, $difficulty);
+	$stmt = $database->prepare("INSERT INTO Record (timestamp, username, minigameName, score, difficulty, beginTimestamp) VALUES (?,?,?,?,?,?)");
+	$stmt->bind_param("issiii", $timestamp, $username, $minigameName, $score, $difficulty, $beginTimestamp);
 
 	$stmt->execute();
 

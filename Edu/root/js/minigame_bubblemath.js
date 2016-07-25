@@ -16,6 +16,9 @@ var stars = [];
 var balloons = [];
 var anwser;
 
+var beginTimestamp;
+var assignmentHistory = []; // History of questions { question: n, anwser: n, correctAnwser: n }
+
 Game.MinigameBubblemath = function (game) { }
 
 Game.MinigameBubblemath.prototype = {
@@ -63,13 +66,7 @@ Game.MinigameBubblemath.prototype = {
 
         this.setupSum(game, maxMultiplication, amountOfAnwsers);
 
-        //// Test
-        //for (var j = 0; j < 100; j++) {
-        //    var n = Math.floor(Math.random() * correctTexts.length);
-        //    console.log("[CORRECT]    Index: " + n + " Item: " + correctTexts[n]);
-        //    var n = Math.floor(Math.random() * incorrectTexts.length);
-        //    console.log("[INCORRECT]  Index: " + n + " Item: " + incorrectTexts[n]);
-        //}
+        beginTimestamp = Math.round(new Date().getTime() / 1000.0);
     },
     update: function () {
 
@@ -111,6 +108,7 @@ Game.MinigameBubblemath.prototype = {
     anwser: function (game, value) {
         //console.log("You choose: " + value);
         //console.log("Anwser correct: " + (value == anwser));
+        assignmentHistory.push({ question: multiplicationText.text, anwser: value, correctAnwser: anwser });
 
         if (value == anwser) {
             sumsCorrect++;
@@ -188,19 +186,37 @@ Game.MinigameBubblemath.prototype = {
     },
     // Should take parameters
     postResults: function () {
+        console.log(assignmentHistory);
+
         var xhttp;
         xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
-            if (xhttp.readyState == 4 && xhttp.status == 200) {
-                console.log(xhttp.responseText);
-            }
+            //if (xhttp.readyState == 4 && xhttp.status == 200) {
+            //    console.log(xhttp.responseText);
+            //}
         };
         xhttp.open("POST", "../Webservice/Controllers/record.php", true);
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         var calcScore = (sumsCorrect / sumTotal) * 100;
         if (calcScore == NaN)
             calcScore = 0;
-        xhttp.send("timestamp=" + Math.round(new Date().getTime() / 1000.0) + "&minigameName=" + "bubblemath" + "&score=" + calcScore + "&difficulty=" + 1);
+        xhttp.send("timestamp=" + Math.round(new Date().getTime() / 1000.0) + "&minigameName=" + "bubblemath" + "&score=" + calcScore + "&difficulty=" + 1 + "&beginTimestamp=" + beginTimestamp);
+
+        for (var i = 0; i < assignmentHistory.length; i++) {
+            var xhttp2;
+            xhttp2 = new XMLHttpRequest();
+            xhttp2.onreadystatechange = function () {
+                if (xhttp2.readyState == 4 && xhttp2.status == 200) {
+                    console.log(xhttp2.responseText);
+                }
+            };
+            xhttp2.open("POST", "../Webservice/Controllers/assignment.php", true);
+            xhttp2.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            var calcScore = (sumsCorrect / sumTotal) * 100;
+            if (calcScore == NaN)
+                calcScore = 0;
+            xhttp2.send("timestamp=" + Math.round(new Date().getTime() / 1000.0) + "&minigameName=" + "bubblemath" + "&question=" + assignmentHistory[i].question + "&anwser=" + assignmentHistory[i].anwser + "&correctAnwser=" + assignmentHistory[i].correctAnwser);
+        }
     },
     getSinTrailCoordinates(width, actualHeight, height, currentStep, amountOfSteps) {
         var stepX = width / (amountOfSteps + 2);

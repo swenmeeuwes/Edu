@@ -1,52 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>Edu - Login</title>
+<?php
+    define("MAX_LENGTH", 6);
 
-    <!-- Bootstrap -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+    $ini_array = parse_ini_file("Webservice/Config/config.ini", true);
 
-    <link href="css/style.css" rel="stylesheet">
+	// Create connection
+	$database = new mysqli($ini_array['Database']['host'], $ini_array['Database']['username'], $ini_array['Database']['password'], $ini_array['Database']['database']);
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
-</head>
-<body style="background-color: #0094ff;">
-    <div class="container">
-        <div class="row">
-            <div class="col-sm-6 col-sm-offset-3">
-                <form class="form-horizontal" role="form">
-                    <h1>Edu Login</h1>
-                    <hr />
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">Gebruikersnaam</label>
-                        <div class="col-sm-9">
-                            <input class="form-control" id="usernameInput" type="text" value="" placeholder="gebruikersnaam">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">Wachtwoord</label>
-                        <div class="col-sm-9">
-                            <input class="form-control" id="passwordInput" type="text" value="" placeholder="wachtwoord">
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+	// Check connection
+	if ($database->connect_error) {
+	    die("OOPS!: " . $database->connect_error);
+	} 
 
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/bootstrap/bootstrap.min.js"></script>
-</body>
-</html>
+    $stmt = $database->prepare("SELECT username, password, salt FROM User WHERE username = ?");
+	$stmt->bind_param("s", $username);
 
+    $username = $_POST["username"];
+    
+	$stmt->execute();
+
+    $stmt->bind_result($username, $password, $salt);
+
+	$stmt->fetch();
+
+	$stmt->close();
+
+    // Use hash_equals (but outdated php :c)
+    echo $salt . "   " . hash("sha256", $_POST["password"] . $salt) . "  ==  " . $password;
+    if(hash("sha256", $_POST["password"] . $salt) == $password) {
+        session_start();
+        $_SESSION["username"] = $username;
+        //if($role == "student")
+            header('Location: app.html');
+        //else if ($role == "parent")
+        //    header('Location: dashboard.html');
+        //else
+        //    header('Location: login.html?error=Your role is not yet supported, sorry :c');
+    } else {
+        header('Location: login.html?error=Could not login: Wrong password');;
+    }
+?>
