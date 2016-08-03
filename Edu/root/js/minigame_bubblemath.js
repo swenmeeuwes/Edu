@@ -136,8 +136,10 @@ Game.MinigameBubblemath.prototype = {
                 game.add.tween(feedbackText).to({ alpha: 0 }, 500, Phaser.Easing.Linear.None, true, 2000);
         });
 
-        if (sumTotal % 10 == 0)
+        if (sumTotal % 10 == 0) {
             this.postResults();
+            game.state.start('hub');
+        }
 
         this.clearSum();
         this.setupSum(this.game, maxMultiplication, amountOfAnwsers);
