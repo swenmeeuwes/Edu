@@ -68,7 +68,7 @@
 
         switch ($role) {
             case 0:
-                header('Location: dashboard');
+                header('Location: Dashboard');
                 break;
             case 1:
                 header('Location: app.html');
