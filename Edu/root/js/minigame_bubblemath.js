@@ -45,7 +45,7 @@ Game.MinigameBubblemath.prototype = {
         moon.y = coords.y;
 
         multiplicationText = game.add.text(game.world.centerX, game.world.centerY / 2, "PLACEHOLDER", {
-            font: "72px Calibri",
+            font: "96px Calibri",
             fill: "#fff",
             align: "center"
         });
@@ -83,7 +83,7 @@ Game.MinigameBubblemath.prototype = {
     update: function () {
 
     },
-    createBalloon: function (game, value, color, x, y, width, height) {
+    createBalloon: function (game, value, x, y, width, height) {
         var balloon = game.add.button(x, y, 'balloon', function () {
             this.anwser(game, value)
         }, this, 2, 1, 0);
@@ -93,7 +93,7 @@ Game.MinigameBubblemath.prototype = {
         balloon.tint = Math.random() * 0xffffff;
 
         var content = game.add.text(balloon.x, balloon.y, value, {
-            font: "14px Arial",
+            font: "32px Calibri",
             fill: "#fff",
             align: "center"
         });
@@ -202,7 +202,7 @@ Game.MinigameBubblemath.prototype = {
                 } while (previousNumbers.indexOf(value) != -1);
             }
             previousNumbers.push(value);
-            this.createBalloon(game, value, "red", (game.world.width) / (anwsers + 1) * i, game.world.centerY * 1.5, 96, 96);
+            this.createBalloon(game, value, (game.world.width) / (anwsers + 1) * i, game.world.centerY * 1.5, 156, 156);
         }
         //console.log(previousNumbers);
     },
