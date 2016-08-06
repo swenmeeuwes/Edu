@@ -14,6 +14,8 @@ Game.Preloader.prototype = {
         // Menu
         this.load.image('buttonPlay', 'assets/button_play.png');
         this.load.image('buttonBack', 'assets/button_back.png');
+        this.load.image('buttonRestart', 'assets/button_restart.png');
+        this.load.image('buttonHome', 'assets/button_home.png');
 
         //Hub
         this.load.image('buttonMinigameBubblemath', 'assets/hub/button_minigame_bubblemath.png');

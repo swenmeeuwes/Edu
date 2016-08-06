@@ -1,15 +1,15 @@
 var maxMultiplication = 10;
 var amountOfAnwsers = 6;
 
-var sumTotal = 0;
-var sumsCorrect = 0;
+var sumTotal;
+var sumsCorrect;
 
 var multiplicationText;
 var progressText;
 var feedbackText;
 
 var correctTexts = ["Goed gedaan!", "Dat klopt!", "Heel goed!", "Dat is correct!", "Ga zo door!", "Goed zo!"];
-var incorrectTexts = [ "Helaas", "Neem je tijd" ];
+var incorrectTexts = ["Helaas", "Neem je tijd"];
 
 var moon;
 var stars = [];
@@ -17,32 +17,42 @@ var balloons = [];
 var anwser;
 
 var beginTimestamp;
-var assignmentHistory = []; // History of questions { question: n, anwser: n, correctAnwser: n }
+var assignmentHistory; // History of questions { question: n, anwser: n, correctAnwser: n }
 
-Game.MinigameBubblemath = function (game) { }
+Game.MinigameBubblemath = function (game) {
+}
 
 Game.MinigameBubblemath.prototype = {
     create: function (game) {
         this.stage.backgroundColor = '#000099';
+        
+        sumTotal = 0;
+        sumsCorrect = 0;
+        
+        stars = [];
+        balloons = [];
+        
+        assignmentHistory = [];
 
         moon = game.add.image(0, 0, 'moon');
         moon.anchor.setTo(0.5, 0.5);
         moon.width = 48;
         moon.height = 48;
+        moon.alpha = 0;
 
-        var coords = this.getSinTrailCoordinates(game.world.width,  game.world.height, game.world.height - 100, sumTotal, 10);
+        var coords = this.getSinTrailCoordinates(game.world.width, game.world.height, game.world.height - 100, sumTotal, 10);
         moon.x = coords.x;
         moon.y = coords.y;
-        
+
         multiplicationText = game.add.text(game.world.centerX, game.world.centerY / 2, "PLACEHOLDER", {
-            font: "32px Calibri",
+            font: "72px Calibri",
             fill: "#fff",
             align: "center"
         });
         multiplicationText.anchor.setTo(0.5, 0);
 
         feedbackText = game.add.text(game.world.centerX, game.world.centerY, "PLACEHOLDER", {
-            font: "12px Calibri",
+            font: "36px Calibri",
             fill: "#fff",
             align: "center"
         });
@@ -56,12 +66,14 @@ Game.MinigameBubblemath.prototype = {
         });
         progressText.visible = false;
 
-        var buttonBack = game.add.button(8, 8, 'buttonBack', function () { game.state.start('hub') }, this, 2, 1, 0);
+        var buttonBack = game.add.button(8, 8, 'buttonBack', function () {
+            game.state.start('hub')
+        }, this, 2, 1, 0);
         buttonBack.onInputOver.add(function () {
-            this.add.tween(buttonBack.scale).to({ x: 1.15, y: 1.15 }, 500, Phaser.Easing.Back.Out, true, 0);
+            this.add.tween(buttonBack.scale).to({x: 1.15, y: 1.15}, 500, Phaser.Easing.Back.Out, true, 0);
         }, this);
         buttonBack.onInputOut.add(function () {
-            this.add.tween(buttonBack.scale).to({ x: 1, y: 1 }, 500, Phaser.Easing.Back.Out, true, 0);
+            this.add.tween(buttonBack.scale).to({x: 1, y: 1}, 500, Phaser.Easing.Back.Out, true, 0);
         }, this);
 
         this.setupSum(game, maxMultiplication, amountOfAnwsers);
@@ -72,7 +84,9 @@ Game.MinigameBubblemath.prototype = {
 
     },
     createBalloon: function (game, value, color, x, y, width, height) {
-        var balloon = game.add.button(x, y, 'balloon', function () { this.anwser(game, value) }, this, 2, 1, 0);
+        var balloon = game.add.button(x, y, 'balloon', function () {
+            this.anwser(game, value)
+        }, this, 2, 1, 0);
         balloon.anchor.setTo(0.5, 0.5);
         balloon.width = width;
         balloon.height = height;
@@ -95,12 +109,12 @@ Game.MinigameBubblemath.prototype = {
         valueBalloon.position.setTo(x, y);
 
         balloon.onInputOver.add(function () {
-            this.add.tween(valueBalloon.position).to({ x: x, y: y - 20 }, 500, Phaser.Easing.Back.Out, true, 0);
-            this.add.tween(valueBalloon.scale).to({ x: 1.15, y: 1.15 }, 500, Phaser.Easing.Back.Out, true, 0);
+            this.add.tween(valueBalloon.position).to({x: x, y: y - 20}, 500, Phaser.Easing.Back.Out, true, 0);
+            this.add.tween(valueBalloon.scale).to({x: 1.15, y: 1.15}, 500, Phaser.Easing.Back.Out, true, 0);
         }, this);
         balloon.onInputOut.add(function () {
-            this.add.tween(valueBalloon.position).to({ x: x, y: y }, 500, Phaser.Easing.Back.Out, true, 0);
-            this.add.tween(valueBalloon.scale).to({ x: 1, y: 1 }, 500, Phaser.Easing.Back.Out, true, 0);
+            this.add.tween(valueBalloon.position).to({x: x, y: y}, 500, Phaser.Easing.Back.Out, true, 0);
+            this.add.tween(valueBalloon.scale).to({x: 1, y: 1}, 500, Phaser.Easing.Back.Out, true, 0);
         }, this);
 
         balloons.push(valueBalloon);
@@ -108,13 +122,16 @@ Game.MinigameBubblemath.prototype = {
     anwser: function (game, value) {
         //console.log("You choose: " + value);
         //console.log("Anwser correct: " + (value == anwser));
-        assignmentHistory.push({ question: multiplicationText.text, anwser: value, correctAnwser: anwser });
-
+        assignmentHistory.push({question: multiplicationText.text, anwser: value, correctAnwser: anwser});
+        
+        if(feedbackText.tween != null)
+            feedbackText.tween.stop();
+        
         if (value == anwser) {
             sumsCorrect++;
-            feedbackText.setStyle( { fill: "#33cc33", fontSize: "12" } );
+            feedbackText.setStyle({fill: "#33cc33", fontSize: "12"});
             feedbackText.setText(correctTexts[Math.floor(Math.random() * correctTexts.length)]);
-            game.add.tween(feedbackText).to({ fontSize: 48 }, 2000, Phaser.Easing.Back.Out, true, 0);
+            game.add.tween(feedbackText).to({fontSize: 48}, 2000, Phaser.Easing.Back.Out, true, 0);
 
             // Generate a stars at a random positions
             for (var i = 0; i < 5; i++) {
@@ -123,29 +140,33 @@ Game.MinigameBubblemath.prototype = {
                 star.width = 12;
                 star.height = 12;
                 star.alpha = 0;
-                this.add.tween(star).to({ alpha: 1 }, 2000, Phaser.Easing.Linear.None, true, 0);
+                this.add.tween(star).to({alpha: 1}, 2000, Phaser.Easing.Linear.None, true, 0);
                 stars.push(star);
             }
         } else {
-            feedbackText.setStyle({ fill: "#e60000", fontSize: "12" });
+            feedbackText.setStyle({fill: "#e60000", fontSize: "12"});
             feedbackText.setText(incorrectTexts[Math.floor(Math.random() * incorrectTexts.length)]);
-            game.add.tween(feedbackText).to({ fontSize: 36 }, 2000, Phaser.Easing.Back.Out, true, 0);
+            game.add.tween(feedbackText).to({fontSize: 36}, 2000, Phaser.Easing.Back.Out, true, 0);
         }
-        var feedbackTextTween = game.add.tween(feedbackText).to({ alpha: 1 }, 1000, Phaser.Easing.Linear.None, true, 0)
-            .onComplete.add(function () {
-                game.add.tween(feedbackText).to({ alpha: 0 }, 500, Phaser.Easing.Linear.None, true, 2000);
-        });
+        
+        game.add.tween(feedbackText).to({alpha: 1}, 1000, Phaser.Easing.Linear.None, true, 0);
+        feedbackText.tween = game.add.tween(feedbackText).to({alpha: 0}, 500, Phaser.Easing.Linear.None, true, 3000);
+//        feedbackText.tween = game.add.tween(feedbackText).to({alpha: 1}, 1000, Phaser.Easing.Linear.None, true, 0)
+//                .onComplete.add(function () {
+//                    game.add.tween(feedbackText).to({alpha: 0}, 500, Phaser.Easing.Linear.None, true, 2000);
+//                });
 
         if (sumTotal % 10 == 0) {
             this.postResults();
-            game.state.start('hub');
+            this.showScore(game, sumTotal, sumsCorrect);
+//            game.state.start('hub');
+        } else {
+            this.clearSum();
+            this.setupSum(this.game, maxMultiplication, amountOfAnwsers);
         }
-
-        this.clearSum();
-        this.setupSum(this.game, maxMultiplication, amountOfAnwsers);
     },
     // Should be destroy object array and take the array with objects as parameter
-    clearSum: function(game) {
+    clearSum: function (game) {
         balloons.forEach(function (balloon) {
             balloon.destroy();
         });
@@ -154,10 +175,10 @@ Game.MinigameBubblemath.prototype = {
         progressText.text = sumsCorrect + "/" + sumTotal;
         sumTotal++;
 
-        var coords = this.getSinTrailCoordinates(game.world.width,  game.world.height, game.world.height - 100, sumTotal, 10);
+        var coords = this.getSinTrailCoordinates(game.world.width, game.world.height, game.world.height - 100, sumTotal, 10);
         moon.x = coords.x;
         moon.y = coords.y;
-        
+
         var n1 = Math.round(Math.random() * maxMultiplication);
         var n2 = Math.round(Math.random() * maxMultiplication);
         anwser = n1 * n2;
@@ -169,12 +190,11 @@ Game.MinigameBubblemath.prototype = {
         var correctAnwserIndex = Math.floor(Math.random() * anwsers) + 1;
         //console.log(correctAnwserIndex);
         var highestAnwser = maxMultiplication * maxMultiplication;
-        var previousNumbers = [ anwser ];
+        var previousNumbers = [anwser];
         for (var i = 1; i <= anwsers; i++) {
             var value;
             if (i == correctAnwserIndex) {
                 value = anwser;
-                
             } else {
                 do {
                     value = Math.round(Math.random() * highestAnwser);
@@ -182,7 +202,7 @@ Game.MinigameBubblemath.prototype = {
                 } while (previousNumbers.indexOf(value) != -1);
             }
             previousNumbers.push(value);
-            this.createBalloon(game, value, "red", 48 + 100 * i, game.world.centerY * 1.5, 96, 96);
+            this.createBalloon(game, value, "red", (game.world.width) / (anwsers + 1) * i, game.world.centerY * 1.5, 96, 96);
         }
         //console.log(previousNumbers);
     },
@@ -220,11 +240,80 @@ Game.MinigameBubblemath.prototype = {
             xhttp2.send("timestamp=" + Math.round(new Date().getTime() / 1000.0) + "&minigameName=" + "bubblemath" + "&question=" + assignmentHistory[i].question + "&anwser=" + assignmentHistory[i].anwser + "&correctAnwser=" + assignmentHistory[i].correctAnwser);
         }
     },
-    getSinTrailCoordinates(width, actualHeight, height, currentStep, amountOfSteps) {
+    getSinTrailCoordinates: function (width, actualHeight, height, currentStep, amountOfSteps) {
         var stepX = width / (amountOfSteps + 2);
         var x = stepX * currentStep;
-        var y = actualHeight - (Math.sin(x / 255) * height);
+        var y = actualHeight - (Math.sin(x / 450) * height);
 
-        return { x, y };
+        return {x, y};
+    },
+    showScore: function (game, sumTotal, correctTotal) {
+        this.clearSum();
+        
+        var graphics = game.add.graphics(0, 0);
+        graphics.beginFill(0xFFFFFF);
+        graphics.drawRoundedRect(game.world.width / 8 * 2, game.world.height / 8, game.world.width / 8 * 4, game.world.height / 8 * 6, 24);
+        graphics.endFill();
+        
+        var buttonRestart = game.add.button(game.world.width / 8 * 2 + (game.world.width / 8 * 6 - game.world.width / 8 * 2) / 2 + game.world.width / 8 * 0.5, game.world.height / 8 * 6, 'buttonRestart', function () {
+            graphics.destroy();
+            score.destroy();
+            this.restart(game);
+            buttonRestart.destroy();
+            buttonHome.destroy();
+        }, this, 2, 1, 0);
+        buttonRestart.onInputOver.add(function () {
+            this.add.tween(buttonRestart).to( { width: 128, height: 128 }, 500, Phaser.Easing.Back.Out, true, 0);
+        }, this);
+        buttonRestart.onInputOut.add(function () {
+            this.add.tween(buttonRestart).to({ width: 96, height: 96 }, 500, Phaser.Easing.Back.Out, true, 0);
+        }, this);
+        buttonRestart.anchor.setTo(0.5, 0.5);
+        buttonRestart.width = 96;
+        buttonRestart.height = 96;
+        
+        var buttonHome = game.add.button(game.world.width / 8 * 2 + (game.world.width / 8 * 6 - game.world.width / 8 * 2) / 2 - game.world.width / 8 * 0.5, game.world.height / 8 * 6, 'buttonHome', function () {
+            this.restart(game);
+            game.state.start('hub', true, false);
+        }, this, 2, 1, 0);
+        buttonHome.onInputOver.add(function () {
+            this.add.tween(buttonHome).to( { width: 128, height: 128 }, 500, Phaser.Easing.Back.Out, true, 0);
+        }, this);
+        buttonHome.onInputOut.add(function () {
+            this.add.tween(buttonHome).to({ width: 96, height: 96 }, 500, Phaser.Easing.Back.Out, true, 0);
+        }, this);
+        buttonHome.anchor.setTo(0.5, 0.5);
+        buttonHome.width = 96;
+        buttonHome.height = 96;
+        
+        var calcScore = (sumsCorrect / sumTotal) * 100;
+        if (calcScore == NaN)
+            calcScore = 0;
+        var score = game.add.text(game.world.width / 8 * 4, game.world.height / 8 * 2, "Je score: \n" + calcScore + "%", {
+            font: "72px Calibri",
+            fill: "#000",
+            align: "center"
+        });
+        score.anchor.setTo(0.5, 0);
+        multiplicationText.anchor.setTo(0.5, 0);
+    },
+    restart: function (game) {
+        game.state.restart();
+//        this.create();
+        
+//        stars.forEach(function (star) {
+//            star.destroy();
+//        });
+//        
+//        assignmentHistory = [];
+//        
+//        var coords = this.getSinTrailCoordinates(game.world.width, game.world.height, game.world.height - 100, sumTotal, 10);
+//        moon.x = coords.x;
+//        moon.y = coords.y;
+//        
+//        this.setupSum(game, maxMultiplication, amountOfAnwsers);
+//
+//        beginTimestamp = Math.round(new Date().getTime() / 1000.0);
+        
     }
 }

@@ -1,4 +1,5 @@
-﻿var data;
+﻿var pointerGame;
+var data;
 var buttonMinigameBubblemath;
 var petNameText;
 
@@ -10,9 +11,12 @@ Game.Hub.prototype = {
     create: function (game) {
         getRawData();
 
+        game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
+        pointerGame = game;
+        
         var background = game.add.image(0, 0, 'backgroundHub');
-        background.width = 800;
-        background.height = 600;
+        background.width = game.world.width;
+        background.height = game.world.height;
 
         var pet = game.add.image(game.world.centerX, game.world.centerY, 'pet');
         pet.width = 200;
@@ -79,5 +83,6 @@ function buttonMinigameBubblemathOnRelease() {
         
 }
 function buttonMinigameBubblemathOnClick() {
-    this.state.start('minigame_bubblemath');
+    pointerGame.scale.startFullScreen(false);
+    this.state.start('minigame_bubblemath', true, false);
 }
