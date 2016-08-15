@@ -1,6 +1,7 @@
 ﻿var pointerGame;
 var data;
 var buttonMinigameBubblemath;
+var buttonMissingLetter;
 var petNameText;
 
 Game.Hub = function (game) {
@@ -30,13 +31,16 @@ Game.Hub.prototype = {
         });
         petNameText.anchor.setTo(0.5, 0.5);
         
-
-        buttonMinigameBubblemath = game.add.button(game.world.centerX * 1.75, game.world.centerY + 50, 'buttonMinigameBubblemath', buttonMinigameBubblemathOnClick, this, 2, 1, 0);
-        buttonMinigameBubblemath.anchor.setTo(0.5, 0.5);
-
-        buttonMinigameBubblemath.onInputOver.add(buttonMinigameBubblemathOnHover, this);
-        buttonMinigameBubblemath.onInputOut.add(buttonMinigameBubblemathOnExit, this);
-        buttonMinigameBubblemath.onInputUp.add(buttonMinigameBubblemathOnRelease, this);
+        var thisObject = this;
+        buttonMinigameBubblemath = new Button(game, 'buttonMinigameBubblemath', game.world.centerX * 1.75, game.world.centerY + 64, 128, 128, "", function() {
+            pointerGame.scale.startFullScreen(false);
+            thisObject.state.start('minigame_bubblemath', true, false);
+        });
+        
+        buttonMissingLetter = new Button(game, 'buttonMissingLetter', game.world.centerX * 1.75, game.world.centerY - 128, 128, 128, "", function() {
+            pointerGame.scale.startFullScreen(false);
+            thisObject.state.start('minigame_missingletter', true, false);
+        });
     },
     update: function (game) {
         if (data != null) {
@@ -69,20 +73,4 @@ function insertPet(name, happiness, growth) {
     xhttp.open("POST", "../Webservice/Controllers/pet.php", true);
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xhttp.send("name=" + name + "&happiness=" + happiness + "&growth=" + growth);
-}
-
-function buttonMinigameBubblemathOnHover() {
-    this.add.tween(buttonMinigameBubblemath.scale).to({ x: 1.2, y: 1.2 }, 500, Phaser.Easing.Back.Out, true, 0);
-}
-
-function buttonMinigameBubblemathOnExit() {
-    this.add.tween(buttonMinigameBubblemath.scale).to({ x: 1, y: 1 }, 500, Phaser.Easing.Back.Out, true, 0);
-}
-
-function buttonMinigameBubblemathOnRelease() {
-        
-}
-function buttonMinigameBubblemathOnClick() {
-    pointerGame.scale.startFullScreen(false);
-    this.state.start('minigame_bubblemath', true, false);
 }

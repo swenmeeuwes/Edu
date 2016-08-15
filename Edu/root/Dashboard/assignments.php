@@ -16,19 +16,20 @@
 	if ($database->connect_error) {
 	    die("OOPS!: " . $database->connect_error);
 	}
-    $stmt = $database->prepare("SELECT r.minigameName, m.skill, r.timestamp, r.beginTimestamp, a.question, a.anwser, a.correctAnwser FROM Student s INNER JOIN Assignment a ON s.studentUsername = a.username INNER JOIN Record r ON a.timestamp = r.timestamp INNER JOIN Minigame m ON m.minigameName = r.minigameName WHERE s.parentUsername = ? AND s.firstname = ? AND r.timestamp = ?");
+    $stmt = $database->prepare("SELECT r.minigameName, m.skill, r.timestamp, r.beginTimestamp, a.question, a.anwser, a.correctAnwser, a.correct FROM Student s INNER JOIN Assignment a ON s.studentUsername = a.username INNER JOIN Record r ON a.timestamp = r.timestamp INNER JOIN Minigame m ON m.minigameName = r.minigameName WHERE s.parentUsername = ? AND s.firstname = ? AND r.timestamp = ?");
     $stmt->bind_param("ssi", $parentUsername, $firstname, $timestamp);
     
     $parentUsername = $_SESSION["username"];
     $firstname = $_GET["name"];
     $timestamp = $_GET["timestamp"];
+    
+    $stmt->execute();
 
-	$stmt->execute();
-
-    $stmt->bind_result($minigameName, $skill, $endTimestamp, $beginTimestamp, $question, $anwser, $correctAnwser);
+    $stmt->bind_result($minigameName, $skill, $endTimestamp, $beginTimestamp, $question, $anwser, $correctAnwser, $correct);
 
     while($stmt->fetch()) {
-        $correct = ($anwser == $correctAnwser);
+//        if(!$correct)
+//            $correct = ($anwser == $correctAnwser);
         array_push($assignments, array("question"=>$question, "anwser"=>$anwser, "correctAnwser"=>$correctAnwser, "correct"=>$correct));
     }
     

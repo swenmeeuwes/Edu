@@ -85,8 +85,8 @@ Game.MinigameBubblemath.prototype = {
     },
     createBalloon: function (game, value, x, y, width, height) {
         var balloon = game.add.button(x, y, 'balloon', function () {
-            this.anwser(game, value)
-        }, this, 2, 1, 0);
+                this.anwser(game, value)
+            }, this, 2, 1, 0);
         balloon.anchor.setTo(0.5, 0.5);
         balloon.width = width;
         balloon.height = height;
@@ -122,7 +122,12 @@ Game.MinigameBubblemath.prototype = {
     anwser: function (game, value) {
         //console.log("You choose: " + value);
         //console.log("Anwser correct: " + (value == anwser));
-        assignmentHistory.push({question: multiplicationText.text, anwser: value, correctAnwser: anwser});
+        assignmentHistory.push({
+            question: multiplicationText.text,
+            anwser: value,
+            correctAnwser: anwser,
+            correct: value == anwser ? 1 : 0
+        });
         
         if(feedbackText.tween != null)
             feedbackText.tween.stop();
@@ -208,8 +213,6 @@ Game.MinigameBubblemath.prototype = {
     },
     // Should take parameters
     postResults: function () {
-        console.log(assignmentHistory);
-
         var xhttp;
         xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
@@ -228,16 +231,16 @@ Game.MinigameBubblemath.prototype = {
             var xhttp2;
             xhttp2 = new XMLHttpRequest();
             xhttp2.onreadystatechange = function () {
-                if (xhttp2.readyState == 4 && xhttp2.status == 200) {
-                    console.log(xhttp2.responseText);
-                }
+//                if (xhttp2.readyState == 4 && xhttp2.status == 200) {
+//                    console.log(xhttp2.responseText);
+//                }
             };
             xhttp2.open("POST", "../Webservice/Controllers/assignment.php", true);
             xhttp2.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             var calcScore = (sumsCorrect / sumTotal) * 100;
             if (calcScore == NaN)
                 calcScore = 0;
-            xhttp2.send("timestamp=" + Math.round(new Date().getTime() / 1000.0) + "&minigameName=" + "bubblemath" + "&question=" + assignmentHistory[i].question + "&anwser=" + assignmentHistory[i].anwser + "&correctAnwser=" + assignmentHistory[i].correctAnwser);
+            xhttp2.send("timestamp=" + Math.round(new Date().getTime() / 1000.0) + "&minigameName=" + "bubblemath" + "&question=" + assignmentHistory[i].question + "&anwser=" + assignmentHistory[i].anwser + "&correctAnwser=" + assignmentHistory[i].correctAnwser + "&correct=" + assignmentHistory[i].correct);
         }
     },
     getSinTrailCoordinates: function (width, actualHeight, height, currentStep, amountOfSteps) {
